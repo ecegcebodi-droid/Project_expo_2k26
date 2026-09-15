@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voter Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <span class="navbar-brand">
+        <span class="logo-circle">&#9973;</span> Voting System
+      </span>
+      <div class="navbar-links">
+        <a href="index.html">Home</a>
+        <span id="navVoterName">Voter</span>
+        <a href="#" id="logoutLink">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-narrow">
+
+    <div class="card">
+      <h2 class="card-title">Voter Dashboard</h2>
+
+      <div class="info-row">
+        <span class="label">Welcome</span>
+        <span class="value" id="welcomeName">&mdash;</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Voter ID</span>
+        <span class="value" id="voterIdDisplay">&mdash;</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Department</span>
+        <span class="value" id="voterDept">&mdash;</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Class</span>
+        <span class="value" id="voterClass">&mdash;</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Election Name</span>
+        <span class="value" id="electionName">&mdash;</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Election Date</span>
+        <span class="value" id="electionDate">&mdash;</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Voting Status</span>
+        <span class="value" id="votingStatus">&mdash;</span>
+      </div>
+    </div>
+
+    <div id="actionArea"></div>
+
+    <a href="#" id="logoutLink2" class="btn btn-ghost btn-block mt-2">Logout</a>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      Secure Web-Based Voting System &mdash; Educational Prototype
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    guardLogin();
+
+    var voterName = VotingData.getCurrentVoterName();
+    document.getElementById("welcomeName").textContent = voterName;
+    document.getElementById("navVoterName").textContent = "Hi, " + voterName;
+    document.getElementById("voterIdDisplay").textContent = VotingData.getCurrentVoter();
+    document.getElementById("voterDept").textContent = VotingData.getCurrentVoterDepartment();
+    document.getElementById("voterClass").textContent = VotingData.getCurrentVoterClass();
+
+    // Load election info async
+    (async function () {
+      var election = await VotingData.getElection();
+      document.getElementById("electionName").textContent = election ? election.name : "—";
+      document.getElementById("electionDate").textContent = election ? formatDate(election.date) : "—";
+
+      var hasVoted = VotingData.hasVoted();
+      var statusEl = document.getElementById("votingStatus");
+      var actionArea = document.getElementById("actionArea");
+
+      if (hasVoted) {
+        statusEl.innerHTML = '<span class="badge badge-voted">Voted</span>';
+        actionArea.innerHTML =
+          '<div class="alert alert-success">You have already cast your vote. Thank you for participating!</div>';
+      } else if (election && election.status === "active") {
+        statusEl.innerHTML = '<span class="badge badge-pending">Not Voted</span>';
+        actionArea.innerHTML =
+          '<a href="voting.html" class="btn btn-primary btn-block">Start Voting</a>';
+      } else {
+        statusEl.innerHTML = '<span class="badge badge-ended">Election Ended</span>';
+        actionArea.innerHTML =
+          '<div class="alert alert-warning">The election has ended. Voting is closed.</div>';
+      }
+    })();
+
+    injectLogoutModal();
+    setupLogout();
+  </script>
+</body>
+</html>

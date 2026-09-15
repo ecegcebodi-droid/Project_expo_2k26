@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Web-Based Voting System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <meta property="og:image" content="https://bolt.new/static/og_default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <span class="navbar-brand">
+        <span class="logo-circle">&#9973;</span>
+        Voting System
+      </span>
+      <div class="navbar-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="#candidates">Candidates</a>
+        <a href="#voters">Voters</a>
+        <a href="login.html">Vote</a>
+        <a href="admin.html">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-bg" style="background-image:url('https://images.pexels.com/photos/7103147/pexels-photo-7103147.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');"></div>
+    <div class="hero-content">
+      <h1>SECURE WEB-BASED<br>VOTING SYSTEM</h1>
+      <div class="subtitle">Secure &bull; Transparent &bull; Reliable Digital Voting</div>
+      <p>A secure web-based platform designed to provide a simple, transparent and reliable voting experience.</p>
+      <div class="hero-actions">
+        <a href="login.html" class="btn btn-outline">Voter Login</a>
+        <a href="login.html" class="btn btn-primary">Start Voting</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- About -->
+    <section id="about" class="card">
+      <h2 class="card-title">About the System</h2>
+      <p style="color:var(--text-muted);">This is an educational prototype of a secure web-based voting system
+         built for a college project. Registered voters can log in from any
+         mobile device or laptop, view the active election, select one
+         candidate or NOTA, and submit their vote. An admin panel shows live
+         statistics and election results.</p>
+    </section>
+
+    <!-- Security Features -->
+    <section id="security">
+      <h2 class="section-title">Security Features</h2>
+      <p class="section-subtitle">Built with good basic security practices</p>
+      <div class="security-grid">
+        <div class="security-item"><span class="check">&#10003;</span> Secure Login</div>
+        <div class="security-item"><span class="check">&#10003;</span> One Person &ndash; One Vote</div>
+        <div class="security-item"><span class="check">&#10003;</span> HTTPS Ready</div>
+        <div class="security-item"><span class="check">&#10003;</span> Password Protection</div>
+        <div class="security-item"><span class="check">&#10003;</span> Duplicate Vote Prevention</div>
+        <div class="security-item"><span class="check">&#10003;</span> Session-Based Voting</div>
+      </div>
+    </section>
+
+    <!-- Candidates -->
+    <section id="candidates" style="margin-top:2.5rem;">
+      <h2 class="section-title">Candidates</h2>
+      <p class="section-subtitle">Meet the candidates standing for election</p>
+      <div class="candidate-grid" id="candidateGrid"></div>
+    </section>
+
+    <!-- Voters -->
+    <section id="voters" style="margin-top:2.5rem;">
+      <h2 class="section-title">Voters</h2>
+      <p class="section-subtitle">Registered voters eligible to cast their vote</p>
+      <div class="rep-grid" id="repGrid"></div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <h4>Secure Voting System</h4>
+        <p>A college project prototype demonstrating secure,
+           mobile-friendly online voting.</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <p><a href="login.html">Voter Login</a></p>
+        <p><a href="admin.html">Admin Dashboard</a></p>
+        <p><a href="#about">About</a></p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>Department of Computer Science<br>
+           College Project &copy; 2026<br>
+           Email: voting@college.edu</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Secure Web-Based Voting System &mdash; Educational Prototype
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    // Render candidate cards (async from Supabase)
+    (async function () {
+      var candidateGrid = document.getElementById("candidateGrid");
+      var candidates = await VotingData.getCandidates();
+      candidates.forEach(function (c) {
+        var card = document.createElement("div");
+        card.className = "candidate-card";
+        card.style.cursor = "default";
+        card.innerHTML =
+          '<div class="photo" style="background:' + c.colour + '">' +
+            c.name.charAt(0).toUpperCase() + '</div>' +
+          '<div class="name">' + c.name + '</div>' +
+          '<div class="department">' + c.department + '</div>' +
+          '<div class="symbol">Symbol: ' + c.symbol + '</div>';
+        candidateGrid.appendChild(card);
+      });
+
+      // Render voter cards
+      var repGrid = document.getElementById("repGrid");
+      var voters = await VotingData.getVoters();
+      voters.forEach(function (r) {
+        var card = document.createElement("div");
+        card.className = "rep-card";
+        card.innerHTML =
+          '<div class="rep-header">' +
+            '<div class="rep-avatar">' + r.name.charAt(0).toUpperCase() + '</div>' +
+            '<div>' +
+              '<div class="rep-name">' + r.name + '</div>' +
+              '<div class="rep-id">' + r.id + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="rep-info">' +
+            '<strong>Department:</strong> ' + r.department + '<br>' +
+            '<strong>Class:</strong> ' + r.class +
+          '</div>';
+        repGrid.appendChild(card);
+      });
+    })();
+  </script>
+</body>
+</html>
