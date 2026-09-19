@@ -1,0 +1,1 @@
+[text](../../../../../../AppData/Local/Packages/5319275A.WhatsAppDesktop_cv1g1gvanyjgm/LocalState/sessions/B32D128206B31F3AAC7CFE801D62953FAB432964/transfers/2026-37/Smart_Transformer_Phase_5_TVR.pdf)
