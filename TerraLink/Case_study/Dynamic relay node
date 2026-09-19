@@ -1,0 +1,205 @@
+TerraLink Dynamic Relay Node System — Technical Brainstorming
+
+PART 1 — What Exactly Is a Dynamic Relay Node?
+
+1. A dynamic relay is any TerraLink device that temporarily forwards another device's packet because it happens to be in range at that moment — its relay role is a function it performs, not a fixed identity it's permanently assigned. This is the core difference from a fixed relay: a fixed relay is a specific, installed, unmoving piece of infrastructure that is always expected to be there; a dynamic relay is whichever device is currently best positioned, and that identity changes minute to minute as people move.
+
+Can every TerraLink device act as a relay? Technically yes — the firmware capability should be identical on every unit, since restricting relaying to "special" hardware defeats the purpose of an ad-hoc mesh. What differs is whether a given device should currently be relaying, which is a runtime decision (Part 3), not a hardware restriction.
+
+Is the relay role permanent or temporary? Temporary and conditional — a device relays only while it is a good candidate (adequate battery, decent link quality, useful position) and stops the moment those conditions change.
+
+When does a normal device become a relay? When it receives a packet not addressed to itself, determines it has a usable next hop toward the destination, and passes the eligibility checks.
+
+When does it stop? When its battery drops below a safe threshold, it loses contact with the node it was forwarding for, or it moves out of useful range — at which point the network must find a replacement path, not simply fail.
+
+2. Purpose and Core Idea
+
+TerraLink uses a dynamic LoRa ad-hoc communication approach for emergency communication in remote and network-deprived regions. The design does not depend on permanently installed relay infrastructure as its primary coverage mechanism.
+
+Each trekker or ranger carries one personal TerraLink device. Its primary role is personal SOS communication, but when network conditions are suitable, the same device can temporarily forward another user's emergency packet. This is a temporary forwarding role, not a permanently assigned relay node.
+
+Dedicated relay units are a separate class of equipment intended for rescue teams and disaster-response teams. Their primary purpose is to extend and maintain communication during organized search-and-rescue or disaster operations.
+
+ 3. Why the Trekker Does Not Carry Two Devices
+
+A trekker does not need a separate SOS device and relay device. One personal TerraLink contains the SOS and LoRa communication functions. When another emergency packet needs forwarding and the device is an appropriate candidate, it temporarily performs the forwarding role. This avoids extra weight, cost, battery requirements, and operational complexity.
+
+4. Dynamic Forwarding Scenario
+
+If Trekker A is injured and presses SOS, A's GPS coordinates are included in the SOS packet. A nearby Trekker B receives the packet without having to know A's location beforehand. B forwards it if B has a suitable route or next-hop opportunity. Another TerraLink node can continue forwarding until the packet reaches the rescue side.
+
+Typical path: Injured Trekker A → temporary forwarding node B → temporary forwarding node C → rescue station / rescue-side relay.
+
+Forwarding nodes do not need to determine the victim's location themselves. The location is carried inside the packet.
+
+5. SOS Packet Contents
+
+Source / Node ID
+
+Unique Packet ID
+
+Message type (SOS)
+
+Latitude
+
+Longitude
+
+Timestamp
+
+TTL / hop limit
+
+If GPS has no valid fix, the system should explicitly mark the location as unavailable rather than treating 0.000000, 0.000000 as a valid position.
+
+6. Neighbor Discovery and Relay Eligibility
+
+TerraLink devices can periodically exchange small HELLO/beacon messages. A node can maintain a temporary neighbor table containing Node ID, battery/availability and measured link quality.
+
+A personal TerraLink device should not forward every packet automatically. It becomes an eligible temporary forwarding node only when conditions are appropriate.
+
+Sufficient battery
+
+Good RSSI/SNR
+
+Acceptable Packet Delivery Ratio (PDR)
+
+Useful progress toward the destination
+
+Available next-hop connectivity
+
+Node availability and mobility
+
+Packet is not already seen
+
+7. Energy Management
+
+The personal device is primarily responsible for its own user. Forwarding another user's traffic must not unnecessarily exhaust its battery.
+
+Normal mode: prioritize the user's own operation.
+
+Relay-eligible mode: temporarily forward when energy and link conditions are suitable.
+
+Low-battery mode: reduce or stop forwarding and preserve energy for the owner.
+
+Emergency mode: prioritize SOS transmission and essential acknowledgement.
+
+Personal devices can use rechargeable batteries with USB/power-bank charging. Dedicated rescue relay units can use larger batteries and, where appropriate, solar or vehicle charging. Solar is an enhancement for long-duration dedicated relay operation, not a requirement for every trekker device.
+
+8. No Nearby TerraLink User
+
+A purely dynamic user-to-user network cannot forward an SOS if the injured trekker has no nearby TerraLink node and no reachable relay path. Dynamic relaying cannot create a communication path where no participating node exists.
+
+TerraLink addresses this by separating opportunistic personal forwarding from dedicated rescue deployment:
+
+Personal devices provide opportunistic forwarding when users are nearby.
+
+Rangers can provide more reliable mobile forwarding.
+
+Rescue/disaster teams can carry dedicated relay units into the affected region.
+
+Dedicated relays can be deployed progressively to extend a path toward an isolated area.
+
+9. Rescue Station Placement
+
+The rescue station is the receiving command/gateway point, not a random relay inside the forest. Suitable locations include a forest control/ranger station, park or trekking base camp, emergency response center, nearby control room, or another accessible location with reliable connectivity.
+
+Dedicated rescue relay units act as mobile extensions of the rescue operation and can be carried or deployed closer to the affected region.
+
+10. Rescue-Team Deployment
+
+During an organized rescue or disaster response, dedicated TerraLink relay units can be carried toward the affected area. These units are designed for forwarding and can use higher-capacity batteries, suitable antennas, rugged packaging, and optional solar/vehicle charging.
+
+Example: Victim → available personal/ranger TerraLink → Dedicated Relay 1 → Dedicated Relay 2 → Rescue Station / command point. The actual number and placement of dedicated relays depends on terrain, link quality, distance and field measurements.
+
+11. Routing Concept
+
+The routing approach should be lightweight and adapted to LoRa's limited data rate, airtime, shared channel and energy constraints. A practical concept is TTL-bounded controlled flooding with duplicate suppression and optional AODV-inspired reverse-path/ACK behavior.
+
+Generate SOS
+
+Check GPS validity
+
+Evaluate neighbors
+
+Select suitable forwarder
+
+Transmit packet
+
+Use ACK/forwarding evidence where implemented
+
+Rediscover a route if the path fails
+
+12. Packet Flooding Prevention
+
+If many nodes receive the same SOS, uncontrolled retransmission can create flooding, congestion, collisions and battery drain.
+
+Unique Packet ID
+
+Source ID
+
+Duplicate-packet cache
+
+TTL / hop limit
+
+Relay eligibility rules
+
+Controlled forwarding
+
+Limited retransmissions
+
+ACK/suppression where implemented
+
+If Node B has already received SOS_1024, a second copy is recognized as a duplicate and discarded rather than forwarded again.
+
+13. Collision Reduction
+
+LoRa uses a shared wireless channel, so simultaneous transmissions can collide. TerraLink cannot claim zero collisions; it reduces their probability and unnecessary airtime.
+
+Controlled forwarding
+
+Random backoff
+
+Duplicate suppression
+
+Limited retransmission
+
+Short SOS packets
+
+Acknowledgement/suppression
+
+Priority for emergency traffic
+
+14. Mobility and Route Recovery
+
+Because personal devices move, a forwarding node can disappear. If A → B → C becomes invalid, the network should detect the failure and search for another suitable next hop, for example A → D → C.
+
+15. GPS Handling
+
+GPS is primarily required at the SOS source. Relay nodes do not need to continuously acquire GPS solely to forward an already-formed SOS packet. This can reduce energy consumption.
+
+The source should verify GPS validity before treating coordinates as confirmed. If no valid fix is available, the packet should clearly indicate unavailable location and the firmware can retry/update according to the implemented design.
+
+16. Future Enhancements
+
+Automatic neighbor discovery and quality scoring
+
+Energy-aware relay selection
+
+RSSI/SNR/PDR-based route selection
+
+Dynamic route recovery
+
+Improved congestion/collision management
+
+Authentication and encryption
+
+Replay protection
+
+Higher-capacity rescue relay batteries
+
+Solar-assisted charging for dedicated relays
+
+Rescue-vehicle relay deployment
+
+Advanced mobile relay platforms such as drones, subject to feasibility and regulation
+
+Field testing for coverage, hop count, packet delivery and energy consumption

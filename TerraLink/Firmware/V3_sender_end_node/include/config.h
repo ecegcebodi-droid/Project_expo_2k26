@@ -1,0 +1,63 @@
+#pragma once
+#include <Arduino.h>
+
+// ---------------- LoRa ----------------
+#define LORA_SCK 18
+#define LORA_MISO 19
+#define LORA_MOSI 23
+#define LORA_SS 5
+#define LORA_RST 27
+#define LORA_DIO0 26
+
+// ---------------- GPS ----------------
+#define GPS_RX_PIN 16
+#define GPS_TX_PIN 17
+
+// ---------------- OLED ----------------
+#define OLED_SDA 21
+#define OLED_SCL 22
+
+// ---------------- User interface ----------------
+#define TOUCH_PIN 32
+#define LOCAL_ALARM_PIN 33
+#define LED_BUTTON_PIN 13
+#define BUZZER_PIN 25
+#define TORCH_PIN 4
+
+// ---------------- Node identity ----------------
+#define NODE_ID 1
+#define RECEIVER_NODE_ID 4
+#define BROADCAST_ID 255
+
+// ---------------- Routing ----------------
+#define SOS_INITIAL_TTL 5
+#define REVERSE_PACKET_TTL 5
+
+// ---------------- LoRa radio ----------------
+#define LORA_FREQUENCY 433E6
+#define LORA_SYNC_WORD 0xF3
+#define LORA_SPREADING_FACTOR 7
+#define LORA_BANDWIDTH 125E3
+#define LORA_CODING_RATE 5
+#define LORA_TX_POWER 17
+
+// ---------------- Timing ----------------
+#define AWAKENING_TIME_MS 2000UL
+#define NORMAL_AWAKE_TIME_MS 60000UL
+#define POST_SOS_AWAKE_TIME_MS 60000UL
+#define SOS_LONG_PRESS_MS 2000UL
+#define GPS_MESSAGE_TIME_MS 4000UL
+#define ACK_WAIT_TIMEOUT_MS 15000UL
+#define SUCCESS_DISPLAY_MS 5000UL
+#define FAILURE_DISPLAY_MS 5000UL
+#define SENDING_DISPLAY_MS 1500UL
+#define UI_UPDATE_MS 120UL
+#define RESCUE_MESSAGE_DISPLAY_MS 8000UL
+
+// ---------------- Power ----------------
+#define SOS_RETRY_INTERVAL_SEC 30ULL
+#define NORMAL_SLEEP_INTERVAL_SEC 60ULL
+
+// ---------------- Rescue messages ----------------
+#define MAX_RESCUE_MESSAGE_LENGTH 120
+#define RESCUE_MESSAGE_QUEUE_SIZE 5

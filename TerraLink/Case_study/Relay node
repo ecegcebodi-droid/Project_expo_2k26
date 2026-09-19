@@ -1,0 +1,154 @@
+TerraLink Relay Node Deployment – Fixed Relay Strategy
+
+Scope: permanently/semi-permanently installed relay nodes only. Portable, drone, and vehicle-mounted relays are excluded from this analysis.
+
+A. FOREST WATCHTOWERS / OBSERVATION TOWERS
+
+1. Where? On top of an existing forest-department fire/observation watchtower, using the tower's own structure as the mounting mast.
+
+2. Why here? Watchtowers are usually the tallest permanent structures inside a forest block, purpose-built for maximum sightline. Height matters for LoRa because it increases Fresnel-zone clearance over trees and terrain — the higher the antenna sits above the canopy, the fewer first-Fresnel-zone obstructions there are, which is what actually determines whether a link achieves its theoretical range rather than degrading to a fraction of it. A tower already places the antenna above canopy height (often 15–25 m), whereas a ground-mounted node in the same forest would be almost entirely canopy-obstructed. Maintenance access is realistic since forest guards already climb these towers periodically for fire-watch duty. Reused infrastructure includes the tower frame, sometimes an existing solar panel or ladder-mounted junction box. Solar suitability is generally good since watchtowers are deliberately sited in open/clear zones. A link toward the next relay or base station is plausible if the next tower or ranger station is within line-of-sight, which should be confirmed by survey rather than assumed.
+
+3. Who powers it? Solar panel + rechargeable Li-ion (or LiFePO4) battery pack is the realistic option — grid power is rarely available this deep into a forest reserve. Installation responsibility would fall to the project/operator team in coordination with the Forest Department, since watchtowers are government property requiring permission. Battery and solar maintenance is best assigned to forest guards already stationed nearby or making periodic rounds, since they already visit for fire-season monitoring; the project team should handle firmware/electronics-level faults on a scheduled visit basis, not forest staff.
+
+4. What if nobody is present? The relay must be autonomous by design: solar-charged battery, no manual intervention required for normal operation, deep-sleep/duty-cycled firmware, and a battery management circuit (over-discharge protection) so the battery isn't damaged by full discharge. Realistic maintenance interval is seasonal (pre-monsoon and post-monsoon check), not daily. If the battery fully discharges (e.g., after an unusually long cloudy spell), the node simply goes silent until sunlight recovers charge above the cut-in threshold — this is a known failure mode that must be designed around, not ignored. For several consecutive cloudy/rainy days, the battery bank must be sized with a deliberate autonomy reserve (see Q6). Backup strategy: oversize the battery for 3–5 days of no-sun operation rather than relying on any secondary power source, since a diesel/generator backup is impractical at this location.
+
+5. Where and how is it physically installed? Mounted on a short mast (1–2 m) fixed to the topmost platform railing of the existing watchtower, above the platform roof if one exists, so the antenna itself is not shadowed by the tower's own structure. The electronics (LoRa module, ESP8266/ESP32, battery) go inside a weatherproof IP65-rated enclosure bolted to the platform floor or wall, not out in the open. Solar panel is mounted on the tower roof or south-facing rail at a tilt angle roughly matched to local latitude for year-round exposure. Lightning risk is real at elevated points, so the mast should be bonded to the tower's existing lightning rod/earthing (if present) or a dedicated ground rod added; a surge-protection device (SPD) in line with the antenna cable is advisable rather than optional. Enclosure should be rated against rain ingress and should be inaccessible to monkeys/birds, which are a genuine hazard at these sites for chewing cables or nesting.
+
+6. How is it charged? Small solar panel (indicative 5–10 W for a duty-cycled node, see Q6 calculation) through a charge controller into an 18650 Li-ion pack or a small LiFePO4 pack, sized for the multi-day autonomy target.
+
+7. How long can it operate? On battery alone, without sun, the operating duration depends directly on battery capacity vs average current draw — this cannot be stated as a fixed number without knowing the exact hardware configuration; an example calculation is given in Q6. With normal solar cycling, the design target should be indefinite (perpetual) operation, since solar recharges the battery daily under adequate sun.
+
+8. Should it always be ON? The LoRa radio's receive path should remain listening continuously or on a short, tight duty cycle, since watchtowers are relatively low-consumption sites once the microcontroller itself is duty-cycled (see Section on power architecture below); this is discussed further in Q8-equivalent analysis.
+
+9. Who maintains it? Forest Department field staff for physical/visual inspection during regular patrol; project/operator technical team for electronics, firmware, and antenna checks on a scheduled visit (recommended pre-monsoon and post-monsoon, i.e., roughly twice yearly, though the exact interval depends on local weather severity and node criticality).
+
+10. What happens during cloudy/rainy periods? The node draws down its reserve battery capacity; if sized correctly for the target autonomy (Q6), it should survive the typical monsoon cloudy stretch. If a stretch exceeds the design autonomy, the node goes offline until recharge — this must be treated as a known, documented limitation, not hidden.
+
+11. What happens if the relay fails? Neighboring relays/nodes should detect the failure through missed periodic heartbeat/beacon messages (see network-wide failure-detection strategy below); traffic reroutes through an alternate mesh path if one exists, or the coverage gap is simply reported to the base station as "relay X unreachable" for a maintenance team to investigate.
+
+12. What if the next relay/checkpoint is beyond reliable LoRa range? A dedicated intermediate relay site should be identified via site survey (see Q9/Q10 methodology below) rather than assuming the tower-to-tower distance is automatically within range.
+
+13. How is the actual relay position determined? By field RSSI/SNR/packet-delivery-ratio testing between the candidate tower and its neighboring towers/checkpoints, not by map distance alone.
+
+14. Advantages
+
+Existing tall structure — no need to build a new tower.
+Already has some access infrastructure (ladder, platform).
+Usually sited in comparatively open/clear zones, good for solar.
+Familiar to forest staff, easing buy-in for maintenance.
+
+15. Limitations
+
+Requires Forest Department permission and cooperation.
+Towers may be spaced further apart than reliable LoRa range.
+Remote towers are hard to reach quickly if something fails mid-monsoon.
+Some towers are seasonal/unmanned for long stretches, delaying fault detection.
+
+16. Practicality Rating: 8/10 — strong technical fit (height, some existing access) but dependent on permissions and forest-department cooperation, and on actual inter-tower distances matching achievable LoRa range.
+
+B. TREKKING CHECKPOINTS
+
+1. Where? At existing trekking checkpoint huts/shelters/registration points along the route.
+
+2. Why here? Checkpoints are already visited regularly by trekkers and staff, meaning power and maintenance access is realistically available. Elevation varies by checkpoint — some sit in valleys (poor for LoRa, since valley floors are the worst-case terrain for line-of-sight) while others sit on ridgelines (good). This location category is only technically strong when the specific checkpoint has elevation/clearance; it should not be assumed uniformly good. Antenna height still matters here — even a modest 3–5 m mast above the checkpoint hut roof line meaningfully improves clearance over nearby vegetation compared to a wall-mounted antenna at head height. Existing infrastructure (hut roof, boundary fence, sometimes existing solar for lighting) can often be reused. Solar suitability depends on whether the checkpoint clearing is open to the sky, which most are, being rest/registration areas.
+
+3. Who powers it? Solar + battery, similar to the watchtower case, since grid power at remote checkpoints is uncommon. Installation and battery/solar maintenance responsibility realistically falls to the trekking/eco-tourism management body or local forest/tourism department staff who already run the checkpoint, supplemented by periodic project-team technical visits.
+
+4. What if nobody is present? Checkpoints are usually staffed at least seasonally (trekking season), which is actually an advantage over deep-forest towers — but off-season, the same autonomous solar/battery/duty-cycle design as Section A applies, since the node cannot depend on staff presence for basic operation.
+
+5. Where and how is it physically installed? On a dedicated short pole (2–4 m) fixed to the checkpoint hut roof or an existing flagpole/signage post, with electronics in a weatherproof enclosure mounted on an interior wall or under an eave rather than fully exposed, solar panel on the roof, grounded mast, and physical guarding (a simple wire cage or elevated mounting) against curious trekkers, livestock, or monkeys.
+
+6. How is it charged? Solar panel + Li-ion/LiFePO4 battery, sized per the Q6 methodology.
+
+7. How long can it operate? Same dependency on hardware sizing as Section A; not a fixed universal number.
+
+8. Should it always be ON? Yes for the receive path, given checkpoints are exactly where trekkers in distress are most likely to be near — reliability matters more here than ultra-low power, favoring the "continuous listen, duty-cycled transmit" architecture described later.
+
+9. Who maintains it? Trekking/eco-tourism management or local checkpoint staff for routine visual checks (since they are present during season); project technical team for periodic deeper inspection.
+
+10. What happens during cloudy/rainy periods? Same battery-drawdown behavior as Section A; checkpoints in valleys with more tree cover may see reduced solar yield and need slightly larger panels than open-ridge sites — this should be assessed per-site, not assumed identical across all checkpoints.
+
+11. What happens if the relay fails? Same heartbeat/neighbor-detection approach as Section A; a failed checkpoint relay is often noticed faster here because staff are present more of the year.
+
+12. What if the next relay/checkpoint is beyond reliable LoRa range? This is the most likely scenario for trekking routes, since checkpoints are placed for trekker logistics (rest, registration, water), not for radio-link optimization — an intermediate relay at a ridge or high point between two checkpoints should be surveyed and installed if needed (see Q9 methodology).
+
+13. How is the actual relay position determined? Same RSSI/SNR/PDR field-survey approach as Section A, checkpoint-by-checkpoint.
+
+14. Advantages
+
+Regular human presence during trekking season.
+Existing huts/structures to mount on.
+Familiar, already-trusted locations for trekkers to know "this is a safety point."
+
+15. Limitations
+
+Some checkpoints sit in valleys/depressions with poor line-of-sight.
+Off-season, effectively unmanned like a forest tower.
+Checkpoint spacing is chosen for trekking convenience, not radio range — gaps are likely.
+
+16. Practicality Rating: 7/10 — good for human-maintenance access, but link quality is location-dependent and cannot be assumed good just because it's a checkpoint.
+
+C. FOREST RANGER STATIONS / RESCUE POSTS
+
+1. Where? On the roof or an existing mast/flagpole at a ranger station or rescue outpost building.
+
+2. Why here? Ranger stations are permanently staffed (unlike seasonal checkpoints), often already have grid electricity or a diesel generator, and function as natural "base station" or "relay hub" points because rescue coordination already happens there. Elevation is site-specific — many ranger stations are built at accessible, lower-lying points near roads rather than on hilltops, so antenna height and mast elevation must compensate for the lack of natural elevation. Existing infrastructure (building roof, sometimes an existing VHF/radio mast used by the Forest Department) can often be reused directly. This is one of the strongest candidates for a link to double as a "base station" endpoint rather than a mid-route relay only.
+
+3. Who powers it? Existing grid electricity where available, since ranger stations are usually connected settlements; solar + battery only as backup or where grid is genuinely absent. Installation and maintenance responsibility sits naturally with the Forest Department / Disaster Management Authority staff already stationed there full-time.
+
+4. What if nobody is present? Least likely of all five categories to be unmanned, since ranger stations are staffed year-round; even so, the electronics should still be autonomous (grid + battery backup) so short staff absences don't cause an outage.
+
+5. Where and how is it physically installed? On a mast fixed to the station roof or reusing an existing radio mast, with electronics in an equipment room or a wall-mounted weatherproof enclosure if no indoor space is available, grounded properly, and with mains-to-battery backup circuitry (so grid outages don't immediately kill the node).
+
+6. How is it charged? Primarily grid-charged battery (float-charged, like a UPS) with solar as a supplementary/backup source where installed.
+
+7. How long can it operate? Effectively continuous given grid availability, with battery backup covering grid outages for a duration set by battery sizing (not a fixed universal figure).
+
+8. Should it always be ON? Yes — grid availability removes most of the power-budget pressure that forces duty-cycling elsewhere, so a ranger-station relay is the best candidate for true always-on operation.
+
+9. Who maintains it? Forest Department / Disaster Management Authority staff already on-site, with project technical team for LoRa-specific hardware and firmware.
+
+10. What happens during cloudy/rainy periods? Minimal impact if grid-powered; solar-only ranger stations would follow the same drawdown logic as Sections A/B.
+
+11. What happens if the relay fails? Fastest detection and repair of all five categories, since staff are present daily; still, automated heartbeat monitoring should be used rather than relying purely on manual observation.
+
+12. What if the next relay/checkpoint is beyond reliable LoRa range? Because ranger stations are often at lower elevation, this is a real risk; an elevated intermediate relay (hilltop or watchtower) may be required between the ranger station and remote checkpoints.
+
+13. How is the actual relay position determined? Same field-survey methodology; here the priority is confirming the link toward remote checkpoints/hilltops rather than toward other ranger stations.
+
+14. Advantages
+
+Staffed continuously — fastest fault response.
+Often has grid power, simplifying the power budget.
+Natural candidate for network "hub" or gateway role.
+
+15. Limitations
+
+Often at lower elevation, so LoRa range toward remote points may be reduced.
+May need a supplementary elevated relay nearby to compensate.
+
+16. Practicality Rating: 8/10 — excellent for power and maintenance, weaker for raw radio geometry unless paired with an elevated companion relay.
+
+D. HILLTOPS / ELEVATED NATURAL LOCATIONS
+
+1. Where? On a bare or lightly-vegetated hilltop, ridge, or high natural point with clear sky view.
+
+2. Why here? This is the strongest option from a pure radio-propagation standpoint. Elevation directly extends the radio horizon: the theoretical line-of-sight distance between two elevated points scales with the square root of each antenna's height above the surrounding terrain, so even a modest additional 10–20 m of natural elevation can meaningfully extend link distance compared to valley or ground-level placement. There is no existing structure to reuse, however, which is the trade-off. Solar suitability is typically excellent, since hilltops are rarely canopy-shaded. Accessibility for maintenance is the weak point — a hilltop may have no path, no shelter, and no reason for anyone to visit except for this node.
+
+3. Who powers it? Solar + battery only, since grid power is essentially never available on a natural hilltop this remote.
+
+4. What if nobody is present? This is the category where full autonomy is most critical, since there is no natural reason for staff to be present; the node must be installed as a completely self-sufficient unit with a battery bank sized for extended cloudy-day autonomy and a maintenance visit scheduled purely for this node (not piggybacked on other duties).
+
+5. Where and how is it physically installed? On a dedicated freestanding mast (guyed or tripod-based, since there's no building to attach to), anchored into rock or a concrete footing, with a weatherproof ground-level or pole-mounted enclosure, dedicated lightning rod and grounding (hilltops attract lightning strikes disproportionately), and a lockable/tamper-resistant enclosure since there is no natural human presence to deter interference.
+
+E. EMERGENCY SHELTERS / DISASTER RELIEF CENTERS
+
+1. Where? On the roof or an external wall/mast at a designated emergency shelter or disaster relief center building.
+
+2. Why here? These buildings are typically located in accessible settlements (villages, towns) rather than remote wilderness, so elevation is often limited (single or two-storey buildings), meaning this category functions best as a network endpoint/base station rather than a wilderness relay. Existing infrastructure (the building itself, sometimes existing communication equipment used during past disaster responses) can be reused directly. Grid power is normally available.
+
+3. Who powers it? Grid electricity as primary, with solar + battery as backup — appropriate given the criticality of the location during an actual disaster, when grid power is exactly what may fail first.
+
+4. What if nobody is present? Shelters are typically only fully staffed during an active emergency; during normal times they may be unmanned or lightly staffed by local administration. The node should still be autonomous (battery/solar backup) so it functions the moment it's needed, not only when staff happen to be present.
+
+5. Where and how is it physically installed? On a rooftop mast or external wall bracket, with electronics in an equipment room or weatherproof enclosure, mains-fed with battery backup, and physically secured given the higher footfall/public-access nature of these buildings compared to remote sites.

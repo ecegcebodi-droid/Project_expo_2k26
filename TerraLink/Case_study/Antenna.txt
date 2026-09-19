@@ -1,0 +1,78 @@
+TerraLink – Final Antenna, Power and Relay Distance Justification
+
+1. Antenna Selection
+
+- TerraLink uses the SX1278 LoRa module at 433 MHz.
+- The wavelength at 433 MHz is approximately 69.3 cm.
+- A quarter-wave antenna is approximately 17.3 cm long.
+- Therefore, a ~17 cm 433 MHz antenna is selected as the theoretical starting point.
+- The final antenna should be properly tuned according to the module, ground plane, enclosure and mounting conditions.
+- A compact omnidirectional antenna is suitable for the portable TerraLink device.
+- Relay nodes and the rescue station can use properly tuned external antennas for better coverage.
+
+2. Antenna Placement
+
+- The antenna should preferably be mounted vertically.
+- The portable-node antenna should be kept away from large metal objects.
+- Relay-node antennas should be mounted at an elevated position.
+- Suitable locations include poles, rooftops, towers or elevated terrain.
+- Elevation improves line of sight and reduces obstruction from buildings, trees and terrain.
+- The antenna should have sufficient clearance from the electronics and metal structures.
+
+3. Transmit Power
+
+- Transmit power is selected based on range, reliability and battery consumption.
+- A prototype target of approximately 17–20 dBm can be considered, depending on the exact SX1278 module and applicable regulations.
+- Higher transmit power can improve link performance but increases battery consumption.
+- TerraLink uses relay nodes, so each node does not need to transmit across the entire communication distance.
+- Moderate transmit power therefore provides a balance between communication reliability and battery life.
+
+4. Relay Node Distance
+
+- The 25 km target represents the overall communication coverage, not necessarily a single 25 km LoRa link.
+- TerraLink uses multi-hop communication to divide the total distance into shorter links.
+- Example:
+  User → Relay 1 → Relay 2 → Relay 3 → Rescue Station
+- Relay nodes should be placed according to the reliably tested communication range.
+- A safety margin should be maintained instead of placing nodes at the theoretical maximum range.
+- For example, if testing provides a reliable range of around 5 km, an initial relay spacing of approximately 2.5–4 km can be considered, depending on the environment.
+
+5. Factors Used to Decide Relay Distance
+
+- Antenna height.
+- Antenna gain and efficiency.
+- Transmit power.
+- Receiver sensitivity.
+- LoRa spreading factor.
+- Bandwidth.
+- Terrain.
+- Trees and vegetation.
+- Buildings and other obstacles.
+- Line-of-sight conditions.
+- Radio interference.
+
+6. Relay Node Power
+
+- Relay nodes use rechargeable batteries.
+- Major power-consuming components include the SX1278, microcontroller, sensors, display and GPS when active.
+- Low-power modes can be used when there is no emergency communication.
+- During an SOS event, the node can:
+  Wake → Receive → Process → Forward → Return to Low Power
+- For long-term deployment, a solar panel + charge controller + rechargeable battery can be used.
+
+7. Overall Justification
+
+- Antenna size: ~17 cm theoretical quarter-wave antenna for 433 MHz.
+- Antenna type: Omnidirectional for portable nodes; properly tuned external antennas for fixed nodes.
+- Antenna position: Vertical and elevated for improved line of sight.
+- Transmit power: Approximately 17–20 dBm as a prototype starting point, subject to regulations.
+- Relay distance: Determined by field-tested reliable range with a safety margin.
+- Overall coverage: Approximately 25 km through multiple LoRa hops.
+- Power source: Rechargeable battery, with solar charging as a future option.
+- Main objective: Reliable emergency communication without depending on cellular towers or internet connectivity.
+
+Final Statement
+
+- TerraLink combines proper antenna selection, suitable transmit power, elevated antenna placement, controlled relay spacing and multi-hop LoRa communication.
+- This approach provides reliable emergency communication while balancing range, battery life, network reliability and practical deployment requirements.
+- The final antenna, power and relay spacing should be validated through real-world field testing before claiming a specific communication range.

@@ -1,0 +1,113 @@
+1. Problem
+      During disasters, cellular infrastructure may become unavailable. Emergency communication therefore needs an infrastructure-independent alternative.
+
+2. Existing Solutions
+    Ad-hoc networks, MANETs, mesh networks, LoRa systems, and other technologies already support infrastructure-independent communication.
+
+    Key realization: TerraLink should not claim to invent ad-hoc networking.
+
+3. TerraLink Direction
+    The project evolved from a static relay system into a dynamic LoRa-based emergency network.
+
+    The main question is:
+
+    > **What is the most reliable route for an emergency packet right now?**
+
+    ## 4. Proposed Solution
+
+    ```text
+    SOS + GPS
+        ↓
+    LoRa
+        ↓
+    Dynamic Relay Nodes
+        ↓
+    Multi-Hop Routing
+        ↓
+    Rescue Station
+    ```
+
+    Relay nodes can:
+
+    * Discover neighboring nodes
+    * Select suitable routes
+    * Monitor link conditions
+    * Detect relay/link failure
+    * Find alternative routes
+    * Consider battery status
+    * Prioritize emergency messages
+
+    ## 5. Why Dynamic?
+
+    A fixed relay can fail or become unreachable.
+
+    ```text
+    Victim → Relay A → Base
+                X
+
+    Victim → Relay C → Relay B → Base
+    ```
+
+    Dynamic routing allows communication to recover through another available path.
+
+    ## 6. Role of LoRa
+
+    **LoRa provides the long-range, low-power wireless link.**
+
+    The TerraLink networking layer manages:
+
+    **Discovery → Route Selection → Forwarding → Failure Detection → Route Recovery**
+
+    ## 7. Functional Requirements
+
+    The system should support:
+
+    * SOS generation
+    * GPS location
+    * LoRa communication
+    * Neighbor discovery
+    * Multi-hop forwarding
+    * Dynamic route selection
+    * Link/failure detection
+    * Route recovery
+    * Battery/status monitoring
+    * Emergency priority
+
+    Each requirement should be experimentally testable.
+
+    ## 8. Power Consideration
+
+    For portable dynamic relays, battery life is important.
+
+    Possible architecture:
+
+    **Solar → Charge Controller → LiFePO₄ Battery → TerraLink Relay**
+
+    The final battery choice should be based on an actual power budget.
+
+    ## 9. Research Direction
+
+    Compare **static vs dynamic TerraLink** under:
+
+    * Relay failure
+    * Link degradation
+    * Node movement
+    * Different battery levels
+
+    Measure:
+
+    * Packet Delivery Ratio
+    * End-to-End Delay
+    * Route Recovery Time
+    * Energy Consumption
+    * Network Lifetime
+
+    ## 10. Final Position
+
+    TerraLink is **not a new networking paradigm**.
+
+    It is an **application-specific, LoRa-based emergency communication system that applies ad-hoc networking principles through dynamically deployable relay nodes and adaptive multi-hop routing.**
+
+    The contribution must ultimately be demonstrated through:
+
+    **Design → Implementation → Experiment → Measurement → Comparison**

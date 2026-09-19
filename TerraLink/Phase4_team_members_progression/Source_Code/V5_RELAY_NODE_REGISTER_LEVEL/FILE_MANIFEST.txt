@@ -1,0 +1,22 @@
+TerraLink Relay1 Refined
+========================
+platformio.ini
+README_REFINED.md
+include/
+  tl_config.h
+  tl_console.h
+  tl_lora.h
+  tl_packet.h
+  tl_relay.h
+  tl_routing.h
+  tl_spi.h
+  tl_time.h
+  tl_types.h
+src/
+  main.cpp                  # Arduino setup()/loop() wrapper
+  core/tl_packet.c
+  core/tl_relay.c
+  core/tl_routing.c
+  hal/tl_console.c
+  hal/tl_lora.c
+  hal/tl_spi.c

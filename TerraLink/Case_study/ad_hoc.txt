@@ -1,0 +1,852 @@
+1. Introduction
+    Communication infrastructure is one of the first systems that can become unavailable during a major disaster. Earthquakes, floods, cyclones, landslides, wildfires, and other emergencies can damage cellular towers, fiber-optic links, power systems, and network backhaul.
+    When conventional infrastructure becomes unavailable, emergency responders still need to exchange critical information such as:
+        >SOS messages
+        >Location coordinates
+        >Rescue-team positions
+        >Short text messages
+        >Sensor information
+        >Situation updates
+    This creates a fundamental communication requirement:
+
+    How can devices communicate when the infrastructure that normally connects them is unavailable? 
+        One established answer is  ad hoc networking .
+            TerraLink is designed around this principle. Rather than claiming to invent a new networking paradigm, TerraLink investigates how established ad hoc networking concepts can be applied to a low-power, long-range emergency communication system using LoRa, GPS, dedicated SOS devices, and dynamically deployable relay nodes.
+
+
+2. Networking Fundamentals
+    
+    2.1 What Is a Network?
+        A computer network is a collection of interconnected devices that exchange information.
+        A conventional communication path can be represented as:
+            Device A
+            ↓
+            Access Point / Tower
+            ↓
+            Core Network
+            ↓
+            Server / Device B
+
+        The intermediate infrastructure is responsible for forwarding information between endpoints.
+
+        Examples include:
+            * cellular networks
+            * Wi-Fi networks
+            * wired Ethernet
+            * satellite communication systems
+            * fiber-optic networks
+        The major advantage of infrastructure-based networking is predictable connectivity.
+
+        However, it also creates a dependency:
+        If critical infrastructure fails, communication may fail even when the individual devices themselves are still operational. 
+
+
+3. Infrastructure-Based Cellular Networking
+    In a cellular network, mobile devices normally communicate through base stations or cellular towers.
+        A simplified architecture is:
+                Phone A
+                │
+                ▼
+                Cell Tower
+                │
+                ▼
+                Core Network
+                │
+                ▼
+                Cell Tower
+                │
+                ▼
+                Phone B
+
+        The mobile devices generally do not need to establish a direct multi-hop path through other phones.
+
+        The cellular infrastructure manages:
+                * authentication
+                * connection management
+                * routing
+                * mobility
+                * radio resource allocation
+                * backhaul connectivity
+        This architecture works extremely well under normal conditions.
+
+        The problem appears when the infrastructure itself becomes unavailable.
+
+
+4. Why Cellular Networks Can Fail During Disasters
+    A disaster can disrupt several parts of the cellular infrastructure.
+        For example:
+ 
+                 Cellular Tower
+                      X
+                     /|\
+                    / | \
+             Power failure
+             Backhaul failure
+             Physical damage
+ 
+    Possible failure points include:
+
+    1. Tower damage.
+    2. Power failure
+    3. Fiber/backhaul damage
+    4. Network congestion
+    5. Generator failure
+    6. Loss of access to the core network
+
+    Even if a victim's phone is fully functional, the phone may be unable to communicate if the supporting infrastructure is unavailable.
+
+    This motivates infrastructure-independent communication.
+  
+
+5. What Is Ad Hoc Networking?
+    An  ad hoc network  is a network formed by participating devices without requiring a permanently installed communication infrastructure.
+    Instead of relying entirely on a central tower or access point, nodes can communicate directly and may forward packets for one another.
+
+    A basic ad hoc network can be represented as:
+    
+                    Node A ───── Node B
+                    │             │
+                    │             │
+                    Node C ───── Node D
+
+    If Node A cannot directly reach Node D, another node can forward the packet:
+                Node A → Node B → Node D
+
+    This is called  multi-hop communication .
+
+    The important concept is:
+        A node can act as both an endpoint and a router. 
+  
+
+6. Why Ad Hoc Networking?
+    Ad hoc networking is useful when communication infrastructure is:
+            * unavailable
+            * damaged
+            * temporary 
+            * expensive to deploy
+            * difficult to access
+            * unsuitable for rapidly changing environments
+
+    This makes it relevant to:
+            * disaster response
+            * military operations
+            * search and rescue
+            * remote regions
+            * temporary events
+            * vehicular networks
+            * sensor networks
+
+    The network can potentially be created where communication is required instead of waiting for permanent infrastructure to be restored.
+    
+
+7. How Ad Hoc Networking Works
+
+        Consider four nodes:
+             A ───── B ───── C ───── D
+        Suppose A cannot directly communicate with D.
+            A sends the packet to B.(A → B)
+            B forwards it:(A → B → C)
+            C forwards it:(A → B → C → D)     
+
+        The network therefore creates a communication path through multiple nodes.
+
+        This introduces several networking requirements:
+                * node discovery
+                * addressing
+                * packet forwarding
+                * route discovery
+                * route selection
+                * route maintenance
+                * failure detection
+                * retransmission
+                * duplicate suppression
+
+        These functions are handled by the networking/routing layer rather than by the physical radio technology itself.
+  
+
+8. Important Ad Hoc Network Categories
+    Ad hoc networking is a broad concept rather than one single protocol.
+
+    8.1 MANET
+        Mobile Ad Hoc Network (MANET)  consists of mobile nodes that dynamically form a network.
+        Nodes may:
+             * move
+             * join
+             * leave
+             * change neighbors
+             * forward packets
+        This makes MANETs relevant to mobile emergency responders.
+                
+     8.2 VANET
+        Vehicular Ad Hoc Network (VANET)  is an ad hoc network involving vehicles.
+        Vehicles communicate with:
+            * other vehicles
+            * roadside infrastructure
+            * sometimes centralized systems
+        VANETs are primarily designed for vehicular communication rather than disaster-specific communication.
+
+     8.3 WSN
+        Wireless Sensor Network (WSN)  consists of sensor nodes that communicate wirelessly to collect and forward environmental information.
+        Typical applications include:
+            * temperature monitoring
+            * fire detection
+            * environmental monitoring
+            * industrial monitoring
+        WSNs may use multi-hop communication, but their primary purpose is generally sensing rather than human emergency communication.
+
+     8.4 Wireless Mesh Networks
+        A wireless mesh network uses multiple interconnected nodes that can forward traffic for one another.
+                        Node A ─── Node B
+                        │       /    │
+                        │      /     │
+                        Node C ─── Node D
+        Mesh networking can be infrastructure-based, infrastructure-less, or hybrid depending on the architecture.
+  
+     8.5 Delay/Disruption-Tolerant Networking
+        In extremely disconnected environments, continuous end-to-end connectivity may not exist.
+        Nodes can store information and forward it later when another communication opportunity becomes available.
+            This is useful when:
+            * connectivity is intermittent
+            * nodes are highly separated
+            * communication paths frequently disappear
+            
+
+9. Ad Hoc Networking in Disaster Management
+
+    Ad hoc networking has already been extensively investigated for disaster communication.
+
+    The basic problem is:
+    
+            Disaster
+            ↓
+            Infrastructure damaged
+            ↓
+            Conventional communication unavailable
+            ↓
+            Deploy/activate independent nodes
+            ↓
+            Nodes form temporary network
+            ↓
+            Emergency information can be forwarded
+    
+
+    Research has explored several approaches, including:
+
+    * MANET-based disaster communication
+    * wireless mesh networks
+    * LoRa-based networks
+    * UAV-based networks
+    * airborne ad hoc networks
+    * portable emergency communication nodes
+
+    Therefore:
+    >  TerraLink should not claim that it invented ad hoc disaster communication. 
+    The existing research establishes the fundamental concept.
+    
+
+10. Existing Disaster and Remote-Area Systems
+
+    Several research projects demonstrate that ad hoc and infrastructure-independent networking has already been applied to disaster and remote environments.
+
+    Examples include:
+
+        Japan — Disaster Ad Hoc Mesh Networks
+
+    Japanese researchers have investigated ad hoc mesh communication systems designed to provide alternative communication during disasters.
+
+    The fundamental concept is:
+            
+            Node A ─── Node B
+            │          │
+            Node C ─── Node D
+    
+
+    The network is created from participating communication nodes rather than depending entirely on conventional cellular infrastructure.
+    
+
+        Japan — Airborne Ad Hoc Networks
+
+    Research has also investigated airborne communication infrastructure using helicopters for remote disaster areas.
+
+    Conceptually:
+    
+                Helicopter
+            Communication Node
+                    │
+        ┌──────────┼──────────┐
+        ↓          ↓          ↓
+        User A     User B    Rescue Team
+    
+
+    The key idea is that communication infrastructure can be rapidly introduced into an affected region.
+    
+
+        UAV-Based Disaster Networks
+
+    UAVs have also been investigated as mobile communication nodes.
+    
+            UAV A
+            /     \
+            /       \
+        UAV B ─── UAV C
+            \       /
+            \     /
+            Users
+    
+
+    This allows the communication topology to change according to the disaster environment.
+    
+
+        LoRa-Based Emergency Networks
+
+    LoRa has been investigated for emergency communication because of its:
+
+    * long communication range
+    * low power consumption
+    * relatively simple infrastructure requirements
+
+    Research has explored LoRa-based emergency management and LoRa mesh/ad hoc communication.
+
+    Therefore:
+
+    >  LoRa + emergency communication is also not sufficient by itself to establish TerraLink's novelty. 
+    
+
+11. HELPER: A Particularly Relevant Case Study
+
+    One of the most important prior systems for TerraLink is  HELPER — Heterogeneous Efficient Low Power Radio for Enabling Ad Hoc Emergency Public Safety Networks .
+
+    HELPER investigated an emergency public-safety network using technologies including Wi-Fi and LoRa.
+
+    A simplified architecture is:
+    
+        User
+        │
+        │ Wi-Fi
+        ▼
+        HELPER Node A
+        │
+        │ LoRa
+        ▼
+        HELPER Node B
+        │
+        │ LoRa
+        ▼
+        HELPER Node C
+        │
+        ▼
+        Gateway / Authority
+    
+
+    The system investigated:
+
+    * emergency messaging
+    * distress communication
+    * map updates
+    * LoRa communication
+    * multi-hop communication
+    * energy-efficient routing
+
+    This is highly relevant because it demonstrates that:
+
+    >  LoRa-based ad hoc emergency networking already exists as a research direction. 
+
+    Therefore, TerraLink should not claim to be the first system to combine LoRa and ad hoc networking.
+
+    Instead, TerraLink needs to define its contribution more precisely.
+
+
+12. Remote-Area Communication
+
+    Ad hoc and disruption-tolerant communication is not limited to disasters.
+
+    Remote communities, farms, mountainous regions, forests, and other isolated environments may experience:
+
+    * limited cellular coverage
+    * long distances
+    * unreliable infrastructure
+    * difficult terrain
+    * expensive network deployment
+
+    LoRa-based and other low-power wireless networks have therefore been investigated for remote communication.
+
+    A simplified architecture is:
+    
+    Remote Site A
+        │
+        ▼
+    Node A
+        │
+        ▼
+    Node B
+        │
+        ▼
+    Remote Site B
+    
+
+    The fundamental problem is similar to disaster communication:
+
+    >  How can information reach its destination when conventional infrastructure is unavailable or unreliable? 
+    
+13. Cellular Network vs Ad Hoc Network
+
+    | Feature                      | Cellular Network              | Ad Hoc Network                          |
+    | ---------------------------- | ----------------------------- | --------------------------------------- |
+    | Central infrastructure       | Required                      | Not necessarily required                |
+    | Communication path           | Usually infrastructure-based  | Node-to-node possible                   |
+    | Multi-hop between user nodes | Usually not the primary model | Common                                  |
+    | Deployment                   | Permanent                     | Temporary/dynamic                       |
+    | Infrastructure failure       | Major problem                 | Can continue if sufficient nodes remain |
+    | Mobility                     | Centrally managed             | Distributed/dynamic                     |
+    | Coverage                     | Determined by infrastructure  | Determined by node placement            |
+    | Disaster deployment          | Infrastructure may be damaged | Nodes can potentially be deployed       |
+    | Routing                      | Network infrastructure        | Distributed routing                     |
+
+    The important point is not that ad hoc networking is universally better.
+    It solves a different problem.
+  
+14. The Relationship Between TerraLink and Ad Hoc Networking
+
+    TerraLink should be understood as an  application-specific emergency communication system built using ad hoc networking principles .
+
+    The relationship is:
+    
+    Ad Hoc Networking
+        │
+        │ networking paradigm
+        ▼
+    Dynamic Multi-Hop Communication
+        │
+        ▼
+    TerraLink Networking Layer
+        │
+        ├── Route discovery
+        ├── Route selection
+        ├── Failure detection
+        ├── Route recovery
+        ├── Battery awareness
+        └── Emergency priority
+    
+
+    TerraLink does not replace MANET, WSN, VANET, or mesh networking.
+
+    It uses concepts from these established networking approaches according to the requirements of emergency communication.
+    
+
+15. LoRa's Role in TerraLink
+
+    A critical distinction must be made between  LoRa and networking .
+
+    LoRa is primarily a long-range, low-power wireless communication technology.
+
+    It provides the wireless link:
+    
+    Node A  ←──── LoRa ────→  Node B
+    
+
+    LoRa itself does not automatically create a complete ad hoc network.
+
+    TerraLink's networking layer must determine:
+
+    * who the neighboring nodes are
+    * which route should be used
+    * how packets are forwarded
+    * when a route is no longer reliable
+    * how an alternative route is selected
+    * how duplicate packets are handled
+    * how emergency packets are prioritized
+
+    Therefore:
+
+    >  LoRa provides the long-range, low-power wireless link. TerraLink's networking layer determines how nodes discover, select, and maintain multi-hop routes over those links. 
+    
+
+16. Static TerraLink vs Dynamic TerraLink
+
+    An earlier TerraLink architecture can be represented as:
+    
+    Victim
+    │
+    ▼
+    Static Relay
+    │
+    ▼
+    Base Station
+    
+
+    This has a major weakness.
+
+    If the relay is:
+
+    * damaged
+    * out of range
+    * moved
+    * disconnected
+    * low on battery
+
+    the communication path may fail.
+
+    The proposed dynamic architecture instead allows relay nodes to change their relationships.
+                
+            Victim
+            │
+            ▼
+            Relay A ─── Relay B
+            │          │
+            └──── Relay C
+                        │
+                        ▼
+                    Base Station
+            
+
+     As nodes move or fail, the network can potentially construct another route.
+            
+ 17. Dynamic TerraLink
+
+        The dynamic TerraLink architecture should not simply mean:
+
+        > “The relay can move.”
+
+        The important feature is that the  network responds to the movement or failure of the relay .
+
+        For example:
+        
+        Initial:
+
+        Victim → Relay A → Relay B → Base
+        
+
+        If Relay A's connection deteriorates:
+        
+        Relay A
+        ↓
+        Link degradation detected
+        
+
+        The network can:
+
+        1. Detect the degradation.
+        2. Advertise or communicate its current status.
+        3. Discover alternative neighboring relays.
+        4. Evaluate candidate routes.
+        5. Select an alternative path.
+        6. Establish the new route.
+        7. Continue forwarding the emergency message.
+
+        For example:
+        
+        Before:
+
+        Victim → A → B → Base
+
+
+        After:
+
+        Victim → C → B → Base
+        
+
+        This is the key transition from a  static relay architecture  toward a  dynamic ad hoc emergency network .
+        
+
+ 18. What Should TerraLink Optimize?
+
+    A normal routing algorithm might simply ask:
+
+    > “What is the shortest route?”
+
+    TerraLink should instead ask:
+
+    >  “What is the most reliable route for an emergency packet right now?” 
+
+    A route should potentially consider:
+
+    * hop count
+    * link quality
+    * RSSI/SNR
+    * packet delivery history
+    * node battery level
+    * node availability
+    * node position
+    * route stability
+    * emergency priority
+
+    For example:
+    
+                    Relay B
+                    Battery 90%
+                    Good Link
+                    /       \
+                /         \
+            Relay A       Relay C
+            Battery 15%   Battery 80%
+    
+
+    A route through Relay A may be technically possible but undesirable if it is close to battery depletion.
+
+    TerraLink could therefore investigate  energy-aware and link-aware emergency routing .
+    
+19. Proposed TerraLink Architecture
+
+      The dynamic TerraLink system can be organized into five conceptual layers:
+            
+            ┌─────────────────────────────────────┐
+            │       Emergency Application         │
+            │       SOS / GPS / Priority          │
+            └─────────────────┬───────────────────┘
+                            │
+            ┌─────────────────▼───────────────────┐
+            │          Routing Layer              │
+            │ Route discovery / selection /       │
+            │ failure detection / recovery        │
+            └─────────────────┬───────────────────┘
+                            │
+            ┌─────────────────▼───────────────────┐
+            │         Relay Management            │
+            │ Battery / position / availability   │
+            └─────────────────┬───────────────────┘
+                            │
+            ┌─────────────────▼───────────────────┐
+            │           LoRa Layer                │
+            │ Link quality / retransmission       │
+            └─────────────────┬───────────────────┘
+                            │
+            ┌─────────────────▼───────────────────┐
+            │          Hardware Layer             │
+            │ MCU + LoRa + GPS + Battery + SOS    │
+            └─────────────────────────────────────┘
+            
+            
+20. TerraLink Emergency Communication Flow
+
+    The complete process can be represented as:
+    
+    Disaster occurs
+        ↓
+    Cellular infrastructure unavailable
+        ↓
+    Rescue personnel enter affected area
+        ↓
+    Portable TerraLink relay nodes are deployed
+        ↓
+    Nodes discover neighboring nodes
+        ↓
+    Dynamic network topology is formed
+        ↓
+    Victim activates SOS
+        ↓
+    GPS location is obtained
+        ↓
+    Emergency packet is transmitted
+        ↓
+    Routing layer selects suitable path
+        ↓
+    Packet is forwarded through relay nodes
+        ↓
+    Route failure/degradation detected if necessary
+        ↓
+    Alternative route established
+        ↓
+    Emergency information reaches rescue/base station
+    
+    
+21. TerraLink's Actual Potential Contribution
+
+    TerraLink should not claim:
+
+    * to have invented ad hoc networking
+    * to have invented multi-hop communication
+    * to have invented LoRa emergency communication
+    * to have invented portable relay nodes
+    * to have invented dynamic routing
+
+    Those concepts already exist in research and networking systems.
+
+    Instead, TerraLink can investigate the combination and optimization of these technologies for a specific emergency scenario.
+
+    Potential contributions include:
+        21.1 Dynamic Relay Deployment
+             Relay nodes can be carried and positioned by emergency personnel according to the changing disaster environment.
+
+        21.2 Emergency-Aware Routing
+            Emergency packets can receive higher forwarding priority than ordinary traffic.
+
+        21.3 Link-Aware Routing
+            Route selection can consider link quality rather than relying only on hop count.
+
+        21.4 Battery-Aware Routing
+            Nodes with critically low battery can be avoided when alternative routes exist.
+
+        21.5 Route Failure Recovery
+            The network can detect deteriorating links and attempt to establish alternative routes.
+
+        21.6 GPS-Assisted Emergency Communication
+            The emergency message can include the victim's location.
+
+     These features must be implemented and experimentally validated before being presented as demonstrated contributions.
+  
+
+22. Research and Engineering Workflow
+
+      TerraLink development should follow a disciplined progression:
+            
+            Existing Problem
+                ↓
+            Existing Solutions
+                ↓
+            Existing Limitations
+                ↓
+            TerraLink Design Requirements
+                ↓
+            TerraLink Architecture
+                ↓
+            Technical Improvement
+                ↓
+            Implementation
+                ↓
+            Experiment
+                ↓
+            Measured Result
+                ↓
+            Evaluation          
+    This prevents the project from becoming a collection of technologies without a clearly defined contribution.
+  
+23. Experimental Validation
+    The dynamic TerraLink architecture should eventually be evaluated under controlled scenarios.
+
+    Important experiments include:
+        Experiment 1 — Static vs Dynamic Routing
+
+    Compare: 
+
+    Static:
+    Victim → A → B → Base  
+
+    against:
+    
+    Dynamic:
+    Victim → A → B → Base
+                ↓
+            route failure
+                ↓
+    Victim → C → B → Base
+    
+
+    Measure:
+
+    * packet delivery ratio
+    * route recovery time
+    * end-to-end delay
+    
+        Experiment 2 — Relay Failure
+
+    Turn off or remove one relay and measure whether the network can recover.
+    
+
+        Experiment 3 — Battery-Aware Routing
+
+    Artificially reduce one relay's available battery and determine whether the routing system avoids it when an alternative exists.
+    
+
+        Experiment 4 — Link Degradation
+
+    Introduce increasing distance or obstacles and observe whether the system detects deteriorating connectivity.
+    
+
+        Experiment 5 — Emergency Priority
+
+    Transmit emergency and non-emergency packets simultaneously and evaluate whether emergency packets receive preferential treatment.
+  
+
+24. Performance Metrics
+
+    The following metrics can be used:
+
+    | Metric                        | Purpose                   |
+    | ----------------------------- | ------------------------- |
+    | Packet Delivery Ratio         | Reliability               |
+    | End-to-End Delay              | Emergency responsiveness  |
+    | Route Recovery Time           | Adaptability              |
+    | Network Lifetime              | Energy efficiency         |
+    | Energy per Packet             | Power efficiency          |
+    | Hop Count                     | Routing efficiency        |
+    | RSSI/SNR                      | Link quality              |
+    | Route Stability               | Connectivity              |
+    | Communication Range           | Coverage                  |
+| Emergency Packet Success Rate | Application effectiveness |
+
+    These measurements transform TerraLink from a conceptual prototype into an experimentally evaluated networking system.
+  
+
+25. Limitations
+
+    TerraLink should also acknowledge its limitations.
+
+    Potential limitations include:
+
+    * LoRa has limited bandwidth.
+    * Multi-hop forwarding increases latency.
+    * Dense networks can create channel contention.
+    * Terrain can strongly affect radio propagation.
+    * GPS may perform poorly indoors or under heavy obstruction.
+    * Battery capacity limits operational duration.
+    * Dynamic routing adds computational and communication overhead.
+    * Regulatory limits may affect LoRa operation.
+    * Emergency deployment depends on responder availability.
+    * A small number of relay nodes may create network partitions.
+
+    Acknowledging these limitations makes the project more credible rather than weaker.
+  
+
+26. Final Position of TerraLink
+
+    TerraLink should be presented as:
+        >  An application-specific, dynamic emergency communication system built on established ad hoc networking principles, using LoRa for long-range low-power communication and portable relay nodes to provide adaptive multi-hop connectivity in disaster environments. 
+    The central technical question is:
+        >  “What is the most reliable route for an emergency packet under changing disaster-network conditions?” 
+
+    The system should therefore focus on how routes are:
+    * discovered
+    * evaluated
+    * selected
+    * maintained
+    * recovered
+
+    while considering:
+    * link quality
+    * node mobility
+    * node availability
+    * battery status
+    * emergency priority
+
+    TerraLink is consequently not proposed as a replacement for MANET, WSN, VANET, or mesh networking.
+
+    Instead, it uses concepts from these established networking paradigms and applies them to a specific emergency communication problem.
+
+    The project's credibility should ultimately come from  implementation, experimentation, and measurable improvement , rather than from claiming that the underlying networking concept itself is new.
+    
+27. Conclusion
+
+    Ad hoc networking provides an established solution to infrastructure-independent communication. Its use in disaster management and remote environments has already been demonstrated through MANETs, mesh networks, LoRa systems, UAV networks, airborne communication systems, and other approaches.
+    This existing work establishes the foundation on which TerraLink is built.
+    The proposed direction for TerraLink is therefore not to reinvent ad hoc networking, but to develop a dynamic emergency communication architecture in which portable relay nodes can adapt to changing network conditions.
+    The intended progression is:
+    
+        Existing disaster communication problem
+                    ↓
+        Existing ad hoc solutions
+                    ↓
+        Identify limitations for the target scenario
+                    ↓
+        Define TerraLink requirements
+                    ↓
+        Design dynamic architecture
+                    ↓
+        Implement routing and relay management
+                    ↓
+        Test failure, mobility, energy and link conditions
+                    ↓
+        Measure performance
+                    ↓
+        Demonstrate whether TerraLink provides an improvement
+ 
+    This approach provides a technically defensible foundation for further development of TerraLink.
