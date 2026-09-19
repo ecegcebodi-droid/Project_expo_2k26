@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voter Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <span class="navbar-brand">
+        <span class="logo-circle">&#9973;</span> Voting System
+      </span>
+      <div class="navbar-links">
+        <a href="index.html">Home</a>
+        <a href="admin.html">Admin</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-narrow">
+    <div class="card">
+      <!-- Login type toggle -->
+      <div class="login-toggle">
+        <button class="login-tab active" id="voterTab" data-mode="voter">Voter Login</button>
+        <button class="login-tab" id="adminTab" data-mode="admin">Admin Login</button>
+      </div>
+
+      <!-- Voter Login -->
+      <div id="voterLoginForm">
+        <h2 class="card-title text-center">Voter Login</h2>
+        <p class="text-center" style="color:var(--text-muted);margin-bottom:1.25rem;">
+          Enter your username and password to continue.
+        </p>
+
+        <div class="alert alert-error hidden" id="errorMsg"></div>
+
+        <form id="loginForm" novalidate>
+          <div class="form-group">
+            <label for="voterId">Username</label>
+            <input type="text" id="voterId" name="voterId"
+                   placeholder="e.g. voter01" autocomplete="username" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password"
+                   placeholder="Your unique password" autocomplete="current-password" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" id="voterLoginBtn">Login</button>
+        </form>
+
+        <p class="text-center mt-2" style="font-size:0.82rem;color:var(--text-muted);">
+          Demo: voter01 / pass001, voter02 / pass002, etc.
+        </p>
+      </div>
+
+      <!-- Admin Login -->
+      <div id="adminLoginForm" class="hidden">
+        <h2 class="card-title text-center">Admin Login</h2>
+        <p class="text-center" style="color:var(--text-muted);margin-bottom:1.25rem;">
+          Enter your admin credentials to access the dashboard.
+        </p>
+
+        <div class="alert alert-error hidden" id="adminErrorMsg"></div>
+
+        <form id="adminLogin" novalidate>
+          <div class="form-group">
+            <label for="adminUser">Admin Username</label>
+            <input type="text" id="adminUser" name="adminUser"
+                   placeholder="Admin username" autocomplete="username" required>
+          </div>
+          <div class="form-group">
+            <label for="adminPass">Admin Password</label>
+            <input type="password" id="adminPass" name="adminPass"
+                   placeholder="Admin password" autocomplete="current-password" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" id="adminLoginBtn">Admin Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      Secure Web-Based Voting System &mdash; Educational Prototype
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    // ---------- Tab switching ----------
+    var voterTab = document.getElementById("voterTab");
+    var adminTab = document.getElementById("adminTab");
+    var voterForm = document.getElementById("voterLoginForm");
+    var adminForm = document.getElementById("adminLoginForm");
+
+    function showVoter() {
+      voterTab.classList.add("active");
+      adminTab.classList.remove("active");
+      voterForm.classList.remove("hidden");
+      adminForm.classList.add("hidden");
+    }
+
+    function showAdmin() {
+      adminTab.classList.add("active");
+      voterTab.classList.remove("active");
+      adminForm.classList.remove("hidden");
+      voterForm.classList.add("hidden");
+    }
+
+    voterTab.addEventListener("click", showVoter);
+    adminTab.addEventListener("click", showAdmin);
+
+    // ---------- Voter login ----------
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var voterId = document.getElementById("voterId").value.trim();
+      var password = document.getElementById("password").value;
+      var errorMsg = document.getElementById("errorMsg");
+      var btn = document.getElementById("voterLoginBtn");
+
+      if (voterId === "" || password === "") {
+        errorMsg.textContent = "Please enter both Username and Password.";
+        errorMsg.classList.remove("hidden");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Logging in...";
+
+      try {
+        var voter = await VotingData.login(voterId, password);
+        if (!voter) {
+          errorMsg.textContent = "Invalid username or password.";
+          errorMsg.classList.remove("hidden");
+          btn.disabled = false;
+          btn.textContent = "Login";
+          return;
+        }
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        errorMsg.textContent = "Login failed. Please try again.";
+        errorMsg.classList.remove("hidden");
+        btn.disabled = false;
+        btn.textContent = "Login";
+      }
+    });
+
+    // ---------- Admin login ----------
+    document.getElementById("adminLogin").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var username = document.getElementById("adminUser").value.trim();
+      var password = document.getElementById("adminPass").value;
+      var errorMsg = document.getElementById("adminErrorMsg");
+      var btn = document.getElementById("adminLoginBtn");
+
+      if (username === "" || password === "") {
+        errorMsg.textContent = "Please enter both Admin Username and Password.";
+        errorMsg.classList.remove("hidden");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Logging in...";
+
+      try {
+        var success = await VotingData.adminLogin(username, password);
+        if (!success) {
+          errorMsg.textContent = "Invalid Admin Username or Password.";
+          errorMsg.classList.remove("hidden");
+          btn.disabled = false;
+          btn.textContent = "Admin Login";
+          return;
+        }
+        window.location.href = "admin.html";
+      } catch (err) {
+        errorMsg.textContent = "Login failed. Please try again.";
+        errorMsg.classList.remove("hidden");
+        btn.disabled = false;
+        btn.textContent = "Admin Login";
+      }
+    });
+  </script>
+</body>
+</html>

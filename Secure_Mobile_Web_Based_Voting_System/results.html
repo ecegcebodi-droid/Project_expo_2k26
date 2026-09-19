@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Election Results</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <span class="navbar-brand">
+        <span class="logo-circle">&#9973;</span> Voting System
+      </span>
+      <div class="navbar-links">
+        <a href="index.html">Home</a>
+        <a href="admin.html">Admin</a>
+        <a href="#" id="logoutLink">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" id="mainContent">
+
+    <h2 class="section-title">Election Results</h2>
+    <p class="section-subtitle" id="resultsSummary">&mdash;</p>
+
+    <div id="noVotes" class="alert alert-info hidden">
+      No votes have been cast yet. Results will appear here once voting begins.
+    </div>
+
+    <div id="resultsContent" class="hidden">
+
+      <!-- Winner -->
+      <div class="card" id="winnerCard">
+        <h3 class="card-title">Winner</h3>
+        <div id="winnerInfo"></div>
+      </div>
+
+      <!-- Bar chart -->
+      <div class="card">
+        <h3 class="card-title">Vote Distribution</h3>
+        <div id="chartArea"></div>
+      </div>
+
+      <!-- Detailed table -->
+      <div class="card">
+        <h3 class="card-title">Detailed Results</h3>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Candidate</th>
+                <th>Department</th>
+                <th>Symbol</th>
+                <th>Votes</th>
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody id="resultsTableBody"></tbody>
+            <tfoot>
+              <tr>
+                <th colspan="5">Total</th>
+                <th id="totalVotes">0</th>
+                <th>100%</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <a href="admin.html" class="btn btn-outline">Back to Admin Dashboard</a>
+  </div>
+
+  <!-- Access Denied (shown when non-admin tries to access) -->
+  <div class="container" id="accessDenied" style="display:none;">
+    <div class="card text-center" style="max-width:500px;margin:3rem auto;">
+      <div style="font-size:3rem;color:var(--error);margin-bottom:0.5rem;">&#9888;</div>
+      <h2 class="card-title">Access Denied</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.5rem;">
+        Only Admin can view the results. Please login with admin credentials to access this page.
+      </p>
+      <a href="login.html" class="btn btn-primary">Go to Login</a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      Secure Web-Based Voting System &mdash; Educational Prototype
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    // Role-based access control: only admin can view results
+    if (!VotingData.isAdmin()) {
+      document.getElementById("mainContent").style.display = "none";
+      document.getElementById("accessDenied").style.display = "block";
+      var logoutLink = document.getElementById("logoutLink");
+      if (logoutLink) logoutLink.style.display = "none";
+    } else {
+      document.getElementById("accessDenied").style.display = "none";
+
+      (async function () {
+        var resultsData = await VotingData.getResults();
+        var totalVotes = await VotingData.getTotalVotes();
+
+        document.getElementById("resultsSummary").textContent =
+          (VotingData._electionCache ? VotingData._electionCache.name : "Election") +
+          " — Total Votes Cast: " + totalVotes;
+
+        // Winner
+        var winner = await VotingData.getWinner();
+        var winnerInfo = document.getElementById("winnerInfo");
+        if (!winner) {
+          winnerInfo.innerHTML = '<p style="color:var(--text-muted);">No votes have been cast yet.</p>';
+        } else if (winner.tie) {
+          winnerInfo.innerHTML = '<p style="color:var(--warning);">It\'s a tie between: ' + winner.names.join(", ") + '</p>';
+        } else {
+          winnerInfo.innerHTML =
+            '<div style="display:flex;align-items:center;gap:0.75rem;">' +
+              '<div style="font-size:2rem;">&#127942;</div>' +
+              '<div>' +
+                '<div style="font-size:1.3rem;font-weight:800;color:var(--primary);">' + winner.name + '</div>' +
+                '<div style="color:var(--text-muted);">Votes: ' + winner.votes + '</div>' +
+              '</div>' +
+            '</div>';
+        }
+
+        if (totalVotes === 0) {
+          document.getElementById("noVotes").classList.remove("hidden");
+        } else {
+          document.getElementById("resultsContent").classList.remove("hidden");
+          document.getElementById("totalVotes").textContent = totalVotes;
+
+          var allResults = resultsData.candidates.concat([resultsData.nota]);
+          var sorted = allResults.slice().sort(function (a, b) { return b.votes - a.votes; });
+
+          var chartArea = document.getElementById("chartArea");
+          var tableBody = document.getElementById("resultsTableBody");
+
+          sorted.forEach(function (r, i) {
+            var displayName = r.name === "NOTA" ? "NOTA — None of the Above" : r.name;
+            var displaySymbol = r.symbol || "—";
+
+            var row = document.createElement("div");
+            row.className = "result-row";
+            row.innerHTML =
+              '<div class="name">' +
+                '<span>' + displayName + (r.name !== "NOTA" ? ' (' + displaySymbol + ')' : '') + '</span>' +
+                '<span>' + r.votes + ' votes — ' + r.percentage + '%</span>' +
+              '</div>' +
+              '<div class="result-bar-bg">' +
+                '<div class="result-bar" style="background:' + r.colour +
+                  '" data-width="' + r.percentage + '%">' + r.percentage + '%</div>' +
+              '</div>';
+            chartArea.appendChild(row);
+
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+              "<td>" + (i + 1) + "</td>" +
+              "<td>" + displayName + "</td>" +
+              "<td>" + (r.department || "—") + "</td>" +
+              "<td>" + displaySymbol + "</td>" +
+              "<td>" + r.votes + "</td>" +
+              "<td>" + r.percentage + "%</td>";
+            tableBody.appendChild(tr);
+          });
+
+          setTimeout(function () {
+            document.querySelectorAll(".result-bar").forEach(function (bar) {
+              bar.style.width = bar.dataset.width;
+            });
+          }, 100);
+        }
+
+        injectLogoutModal();
+        setupLogout();
+      })();
+    }
+  </script>
+</body>
+</html>
