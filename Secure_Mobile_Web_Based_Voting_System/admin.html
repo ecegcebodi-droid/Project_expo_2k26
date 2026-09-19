@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <span class="navbar-brand">
+        <span class="logo-circle">&#9973;</span> Admin Panel
+      </span>
+      <div class="navbar-links">
+        <a href="index.html">Home</a>
+        <a href="results.html">Results</a>
+        <a href="#" id="logoutLink">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2 class="section-title">Admin Dashboard</h2>
+    <p class="section-subtitle">
+      Election:
+      <span id="electionName">&mdash;</span>
+      &mdash;
+      <span id="electionBadge">&mdash;</span>
+    </p>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="number" id="statVoters">0</div>
+        <div class="label">Total Voters</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="statVoted">0</div>
+        <div class="label">Total Voted</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="statNotVoted">0</div>
+        <div class="label">Not Voted</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="statVotes">0</div>
+        <div class="label">Total Votes</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="statNOTA">0</div>
+        <div class="label">NOTA Votes</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="statPercentage">0%</div>
+        <div class="label">Voting Percentage</div>
+      </div>
+    </div>
+
+    <!-- Election status + Reset -->
+    <div class="card">
+      <h3 class="card-title">Election Status</h3>
+      <div class="flex-between">
+        <span id="statusText" style="font-weight:600;">&mdash;</span>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn btn-success btn-sm" id="toggleElectionBtn">Start Election</button>
+          <button class="btn btn-danger btn-sm" id="resetElectionBtn">Reset Demo Election</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Candidate Details -->
+    <div class="card">
+      <h3 class="card-title">Candidate Details</h3>
+      <div id="candidateChart"></div>
+      <div class="table-wrap mt-2">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Department</th>
+              <th>Symbol</th>
+              <th>Votes</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody id="candidateTableBody"></tbody>
+          <tfoot>
+            <tr id="notaRow">
+              <td><strong>NOTA</strong></td>
+              <td>None of the Above</td>
+              <td>&mdash;</td>
+              <td id="notaVotesCell">0</td>
+              <td id="notaPctCell">0.0%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Election Results Chart -->
+    <div class="card">
+      <h3 class="card-title">Election Results</h3>
+      <div id="resultsChart"></div>
+      <a href="results.html" class="btn btn-primary btn-sm mt-2">View Full Results</a>
+    </div>
+
+    <!-- Voted Voters -->
+    <div class="card">
+      <h3 class="card-title">Voters Who Have Voted</h3>
+
+      <div class="filter-bar">
+        <input type="text" id="searchVoted" class="filter-input" placeholder="Search by Voter ID or Name...">
+        <select id="filterDeptVoted" class="filter-select">
+          <option value="">All Departments</option>
+        </select>
+        <select id="filterClassVoted" class="filter-select">
+          <option value="">All Classes</option>
+        </select>
+      </div>
+
+      <div class="table-wrap mt-2">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Voter ID</th>
+              <th>Voter Name</th>
+              <th>Department</th>
+              <th>Class</th>
+              <th>Status</th>
+              <th>Voting Time</th>
+            </tr>
+          </thead>
+          <tbody id="votedTableBody"></tbody>
+        </table>
+      </div>
+      <p id="votedEmpty" class="filter-empty hidden">No voters have voted yet.</p>
+    </div>
+
+    <!-- Not Voted Voters -->
+    <div class="card">
+      <h3 class="card-title">Voters Who Have Not Voted</h3>
+
+      <div class="filter-bar">
+        <input type="text" id="searchNotVoted" class="filter-input" placeholder="Search by Voter ID or Name...">
+        <select id="filterDeptNotVoted" class="filter-select">
+          <option value="">All Departments</option>
+        </select>
+        <select id="filterClassNotVoted" class="filter-select">
+          <option value="">All Classes</option>
+        </select>
+      </div>
+
+      <div class="table-wrap mt-2">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Voter ID</th>
+              <th>Voter Name</th>
+              <th>Department</th>
+              <th>Class</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="notVotedTableBody"></tbody>
+        </table>
+      </div>
+      <p id="notVotedEmpty" class="filter-empty hidden">All voters have voted.</p>
+    </div>
+
+    <!-- All Voters Combined -->
+    <div class="card">
+      <h3 class="card-title">All Voters</h3>
+
+      <div class="filter-bar">
+        <input type="text" id="searchAll" class="filter-input" placeholder="Search by Voter ID or Name...">
+        <select id="filterDeptAll" class="filter-select">
+          <option value="">All Departments</option>
+        </select>
+        <select id="filterClassAll" class="filter-select">
+          <option value="">All Classes</option>
+        </select>
+        <select id="filterStatusAll" class="filter-select">
+          <option value="">All Status</option>
+          <option value="voted">Voted</option>
+          <option value="notvoted">Not Voted</option>
+        </select>
+      </div>
+
+      <div class="table-wrap mt-2">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Voter ID</th>
+              <th>Voter Name</th>
+              <th>Username</th>
+              <th>Department</th>
+              <th>Class</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="allVotersTableBody"></tbody>
+        </table>
+      </div>
+      <p id="allVotersEmpty" class="filter-empty hidden">No voters match your filters.</p>
+    </div>
+
+    <a href="#" id="logoutLink2" class="btn btn-ghost btn-block mt-2">Logout</a>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      Secure Web-Based Voting System &mdash; Educational Prototype
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    guardAdmin();
+
+    var _departments = [];
+    var _classes = [];
+
+    // ---------- Init ----------
+    (async function () {
+      _departments = await VotingData.getDepartments();
+      _classes = await VotingData.getClasses();
+
+      ["filterDeptVoted", "filterDeptNotVoted", "filterDeptAll"].forEach(function (id) {
+        var sel = document.getElementById(id);
+        _departments.forEach(function (d) {
+          var opt = document.createElement("option");
+          opt.value = d;
+          opt.textContent = d;
+          sel.appendChild(opt);
+        });
+      });
+      ["filterClassVoted", "filterClassNotVoted", "filterClassAll"].forEach(function (id) {
+        var sel = document.getElementById(id);
+        _classes.forEach(function (c) {
+          var opt = document.createElement("option");
+          opt.value = c;
+          opt.textContent = c;
+          sel.appendChild(opt);
+        });
+      });
+
+      await refreshAll();
+    })();
+
+    // ---------- Stats ----------
+    async function renderStats() {
+      var stats = await VotingData.getStats();
+      var election = await VotingData.getElection();
+      document.getElementById("electionName").textContent = election ? election.name : "—";
+      document.getElementById("statVoters").textContent = stats.totalVoters;
+      document.getElementById("statVoted").textContent = stats.votedCount;
+      document.getElementById("statNotVoted").textContent = stats.notVotedCount;
+      document.getElementById("statVotes").textContent = stats.totalVotes;
+      document.getElementById("statNOTA").textContent = stats.notaVotes;
+      document.getElementById("statPercentage").textContent = stats.votingPercentage + "%";
+    }
+
+    // ---------- Election status ----------
+    var badge = document.getElementById("electionBadge");
+    var statusText = document.getElementById("statusText");
+    var toggleBtn = document.getElementById("toggleElectionBtn");
+
+    async function updateStatusUI() {
+      var election = await VotingData.getElection();
+      var status = election ? election.status : "active";
+      if (status === "active") {
+        badge.innerHTML = '<span class="badge badge-active">Active</span>';
+        statusText.textContent = "Election is currently active.";
+        toggleBtn.textContent = "Stop Election";
+        toggleBtn.className = "btn btn-danger btn-sm";
+      } else {
+        badge.innerHTML = '<span class="badge badge-ended">Ended</span>';
+        statusText.textContent = "Election is currently stopped.";
+        toggleBtn.textContent = "Start Election";
+        toggleBtn.className = "btn btn-success btn-sm";
+      }
+    }
+
+    toggleBtn.addEventListener("click", async function () {
+      var election = await VotingData.getElection();
+      var status = election ? election.status : "active";
+      if (status === "active") {
+        if (confirm("Stop the election now?")) {
+          await VotingData.setElectionStatus("ended");
+          await updateStatusUI();
+        }
+      } else {
+        if (confirm("Start the election now?")) {
+          await VotingData.setElectionStatus("active");
+          await updateStatusUI();
+        }
+      }
+    });
+
+    // ---------- Candidate Details ----------
+    async function renderCandidateDetails() {
+      var resultsData = await VotingData.getResults();
+      var total = await VotingData.getTotalVotes();
+      var chartArea = document.getElementById("candidateChart");
+      var tableBody = document.getElementById("candidateTableBody");
+      chartArea.innerHTML = "";
+      tableBody.innerHTML = "";
+
+      resultsData.candidates.forEach(function (c) {
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td>" + c.name + "</td>" +
+          "<td>" + c.department + "</td>" +
+          "<td>" + c.symbol + "</td>" +
+          "<td>" + c.votes + "</td>" +
+          "<td>" + c.percentage + "%</td>";
+        tableBody.appendChild(tr);
+      });
+
+      document.getElementById("notaVotesCell").textContent = resultsData.nota.votes;
+      document.getElementById("notaPctCell").textContent = resultsData.nota.percentage + "%";
+
+      // Bar chart
+      var allResults = resultsData.candidates.concat([resultsData.nota]);
+      var sorted = allResults.slice().sort(function (a, b) { return b.votes - a.votes; });
+
+      sorted.forEach(function (r) {
+        var displayName = r.name === "NOTA" ? "NOTA" : r.name;
+        var row = document.createElement("div");
+        row.className = "result-row";
+        row.innerHTML =
+          '<div class="name">' +
+            '<span>' + displayName + '</span>' +
+            '<span>' + r.votes + ' votes — ' + r.percentage + '%</span>' +
+          '</div>' +
+          '<div class="result-bar-bg">' +
+            '<div class="result-bar" style="background:' + r.colour +
+              '" data-width="' + r.percentage + '%">' + r.percentage + '%</div>' +
+          '</div>';
+        chartArea.appendChild(row);
+      });
+
+      setTimeout(function () {
+        document.querySelectorAll("#candidateChart .result-bar").forEach(function (bar) {
+          bar.style.width = bar.dataset.width;
+        });
+      }, 100);
+    }
+
+    // ---------- Results (bar chart only) ----------
+    async function renderResults() {
+      var resultsData = await VotingData.getResults();
+      var total = await VotingData.getTotalVotes();
+      var chartArea = document.getElementById("resultsChart");
+      chartArea.innerHTML = "";
+
+      if (total === 0) {
+        chartArea.innerHTML = '<p style="color:var(--text-muted);">No votes have been cast yet.</p>';
+        return;
+      }
+
+      var allResults = resultsData.candidates.concat([resultsData.nota]);
+      var sorted = allResults.slice().sort(function (a, b) { return b.votes - a.votes; });
+
+      sorted.forEach(function (r) {
+        var displayName = r.name === "NOTA" ? "NOTA" : r.name;
+        var row = document.createElement("div");
+        row.className = "result-row";
+        row.innerHTML =
+          '<div class="name">' +
+            '<span>' + displayName + '</span>' +
+            '<span>' + r.votes + ' votes — ' + r.percentage + '%</span>' +
+          '</div>' +
+          '<div class="result-bar-bg">' +
+            '<div class="result-bar" style="background:' + r.colour +
+              '" data-width="' + r.percentage + '%">' + r.percentage + '%</div>' +
+          '</div>';
+        chartArea.appendChild(row);
+      });
+
+      setTimeout(function () {
+        document.querySelectorAll("#resultsChart .result-bar").forEach(function (bar) {
+          bar.style.width = bar.dataset.width;
+        });
+      }, 100);
+    }
+
+    // ---------- Format voting time ----------
+    function formatVotingTime(iso) {
+      if (!iso) return "—";
+      var d = new Date(iso);
+      var hh = String(d.getHours()).padStart(2, "0");
+      var mm = String(d.getMinutes()).padStart(2, "0");
+      var ss = String(d.getSeconds()).padStart(2, "0");
+      var day = String(d.getDate()).padStart(2, "0");
+      var mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()];
+      return day + " " + mon + " " + d.getFullYear() + " " + hh + ":" + mm + ":" + ss;
+    }
+
+    // ---------- Voted voters table ----------
+    async function renderVotedVoters() {
+      var search = document.getElementById("searchVoted").value.toLowerCase().trim();
+      var dept = document.getElementById("filterDeptVoted").value;
+      var cls = document.getElementById("filterClassVoted").value;
+      var voted = await VotingData.getVotedVoters();
+
+      var filtered = voted.filter(function (v) {
+        var matchSearch = !search ||
+          v.id.toLowerCase().indexOf(search) !== -1 ||
+          v.name.toLowerCase().indexOf(search) !== -1;
+        var matchDept = !dept || v.department === dept;
+        var matchClass = !cls || v.class === cls;
+        return matchSearch && matchDept && matchClass;
+      });
+
+      var tbody = document.getElementById("votedTableBody");
+      var empty = document.getElementById("votedEmpty");
+      tbody.innerHTML = "";
+
+      if (filtered.length === 0) {
+        empty.classList.remove("hidden");
+        empty.textContent = voted.length === 0 ? "No voters have voted yet." : "No voters match your filters.";
+        return;
+      }
+      empty.classList.add("hidden");
+
+      filtered.forEach(function (v) {
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td>" + v.id + "</td>" +
+          "<td>" + v.name + "</td>" +
+          "<td>" + v.department + "</td>" +
+          "<td>" + v.class + "</td>" +
+          '<td><span class="badge badge-voted">' + v.status + "</span></td>" +
+          "<td>" + formatVotingTime(v.votedAt) + "</td>";
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ---------- Not voted voters table ----------
+    async function renderNotVotedVoters() {
+      var search = document.getElementById("searchNotVoted").value.toLowerCase().trim();
+      var dept = document.getElementById("filterDeptNotVoted").value;
+      var cls = document.getElementById("filterClassNotVoted").value;
+      var notVoted = await VotingData.getNotVotedVoters();
+
+      var filtered = notVoted.filter(function (v) {
+        var matchSearch = !search ||
+          v.id.toLowerCase().indexOf(search) !== -1 ||
+          v.name.toLowerCase().indexOf(search) !== -1;
+        var matchDept = !dept || v.department === dept;
+        var matchClass = !cls || v.class === cls;
+        return matchSearch && matchDept && matchClass;
+      });
+
+      var tbody = document.getElementById("notVotedTableBody");
+      var empty = document.getElementById("notVotedEmpty");
+      tbody.innerHTML = "";
+
+      if (filtered.length === 0) {
+        empty.classList.remove("hidden");
+        empty.textContent = notVoted.length === 0 ? "All voters have voted." : "No voters match your filters.";
+        return;
+      }
+      empty.classList.add("hidden");
+
+      filtered.forEach(function (v) {
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td>" + v.id + "</td>" +
+          "<td>" + v.name + "</td>" +
+          "<td>" + v.department + "</td>" +
+          "<td>" + v.class + "</td>" +
+          '<td><span class="badge badge-pending">' + v.status + "</span></td>";
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ---------- All voters table ----------
+    async function renderAllVoters() {
+      var search = document.getElementById("searchAll").value.toLowerCase().trim();
+      var dept = document.getElementById("filterDeptAll").value;
+      var cls = document.getElementById("filterClassAll").value;
+      var status = document.getElementById("filterStatusAll").value;
+      var allVoters = await VotingData.getVoters();
+
+      var mapped = allVoters.map(function (v) {
+        return {
+          id: v.id,
+          name: v.name,
+          username: v.username || "",
+          department: v.department,
+          class: v.class,
+          status: v.has_voted ? "Voted" : "Not Voted",
+          statusKey: v.has_voted ? "voted" : "notvoted",
+        };
+      });
+
+      var filtered = mapped.filter(function (v) {
+        var matchSearch = !search ||
+          v.id.toLowerCase().indexOf(search) !== -1 ||
+          v.name.toLowerCase().indexOf(search) !== -1 ||
+          v.username.toLowerCase().indexOf(search) !== -1;
+        var matchDept = !dept || v.department === dept;
+        var matchClass = !cls || v.class === cls;
+        var matchStatus = !status || v.statusKey === status;
+        return matchSearch && matchDept && matchClass && matchStatus;
+      });
+
+      var tbody = document.getElementById("allVotersTableBody");
+      var empty = document.getElementById("allVotersEmpty");
+      tbody.innerHTML = "";
+
+      if (filtered.length === 0) {
+        empty.classList.remove("hidden");
+        return;
+      }
+      empty.classList.add("hidden");
+
+      filtered.forEach(function (v) {
+        var badgeClass = v.statusKey === "voted" ? "badge-voted" : "badge-pending";
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td>" + v.id + "</td>" +
+          "<td>" + v.name + "</td>" +
+          "<td>" + v.username + "</td>" +
+          "<td>" + v.department + "</td>" +
+          "<td>" + v.class + "</td>" +
+          '<td><span class="badge ' + badgeClass + '">' + v.status + "</span></td>";
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ---------- Refresh everything ----------
+    async function refreshAll() {
+      await renderStats();
+      await updateStatusUI();
+      await renderCandidateDetails();
+      await renderResults();
+      await renderVotedVoters();
+      await renderNotVotedVoters();
+      await renderAllVoters();
+    }
+
+    // ---------- Reset Demo Election ----------
+    document.getElementById("resetElectionBtn").addEventListener("click", async function () {
+      if (!confirm("Are you sure you want to reset the demo election?\n\nThis will:\n- Set all 20 voters back to NOT VOTED\n- Set all candidate vote counts to 0\n- Set NOTA count to 0\n- Clear all voting records")) {
+        return;
+      }
+      var result = await VotingData.resetElection();
+      if (result.success) {
+        alert("Demo election has been reset successfully.");
+        await refreshAll();
+      } else {
+        alert(result.message);
+      }
+    });
+
+    // ---------- Search & filter listeners ----------
+    document.getElementById("searchVoted").addEventListener("input", function () { renderVotedVoters(); });
+    document.getElementById("filterDeptVoted").addEventListener("change", function () { renderVotedVoters(); });
+    document.getElementById("filterClassVoted").addEventListener("change", function () { renderVotedVoters(); });
+    document.getElementById("searchNotVoted").addEventListener("input", function () { renderNotVotedVoters(); });
+    document.getElementById("filterDeptNotVoted").addEventListener("change", function () { renderNotVotedVoters(); });
+    document.getElementById("filterClassNotVoted").addEventListener("change", function () { renderNotVotedVoters(); });
+    document.getElementById("searchAll").addEventListener("input", function () { renderAllVoters(); });
+    document.getElementById("filterDeptAll").addEventListener("change", function () { renderAllVoters(); });
+    document.getElementById("filterClassAll").addEventListener("change", function () { renderAllVoters(); });
+    document.getElementById("filterStatusAll").addEventListener("change", function () { renderAllVoters(); });
+
+    // ---------- Logout ----------
+    injectLogoutModal();
+    setupLogout();
+  </script>
+</body>
+</html>

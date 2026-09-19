@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Start Voting</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <span class="navbar-brand">
+        <span class="logo-circle">&#9973;</span> Voting System
+      </span>
+      <div class="navbar-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#" id="logoutLink">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <h2 class="section-title" id="electionTitle">&mdash;</h2>
+    <p class="section-subtitle" id="electionDesc">&mdash;</p>
+
+    <div class="card">
+      <h3 class="card-title">Instructions</h3>
+      <ul style="margin-left:1.25rem;color:var(--text-muted);">
+        <li>Select <b>exactly one</b> candidate OR the NOTA option by tapping their card.</li>
+        <li>NOTA means "None of the Above" &mdash; use it if you don't support any candidate.</li>
+        <li>Review your choice carefully before submitting.</li>
+        <li>You can only vote <b>once</b> &mdash; your vote cannot be changed.</li>
+        <li>Your vote is anonymous &mdash; it is not linked to your identity.</li>
+      </ul>
+    </div>
+
+    <div class="candidate-grid" id="candidateGrid"></div>
+
+    <!-- NOTA option -->
+    <div class="candidate-grid" id="notaGrid" style="grid-template-columns:1fr;margin-top:1.25rem;">
+      <label class="candidate-card nota-card" id="notaCard">
+        <div class="photo" style="background:#64748b;">&#10007;</div>
+        <div class="name">NOTA</div>
+        <div class="department">None of the Above</div>
+        <div class="symbol">Vote to reject all candidates</div>
+        <input type="radio" name="candidate" value="NOTA">
+      </label>
+    </div>
+
+    <div class="text-center mt-2">
+      <button type="button" class="btn btn-success btn-block" id="submitVoteBtn"
+              disabled>Submit Vote</button>
+    </div>
+
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <h3>Confirm Your Vote</h3>
+      <p>Are you sure you want to submit your vote? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="confirmNo">Cancel</button>
+        <button class="btn btn-success" id="confirmYes">Yes, Submit Vote</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal">
+      <div class="success-icon">&#10003;</div>
+      <h3>Vote Submitted Successfully</h3>
+      <p>Your vote has been recorded. Save this Vote ID for your reference.</p>
+      <div class="vote-id-box">
+        <div class="label">Your Unique Vote ID</div>
+        <div class="id" id="voteIdDisplay">&mdash;</div>
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-muted);">
+        For privacy, your selected option is not shown.
+      </p>
+      <div class="modal-actions">
+        <a href="dashboard.html" class="btn btn-primary">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      Secure Web-Based Voting System &mdash; Educational Prototype
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    guardLogin();
+    if (VotingData.hasVoted()) {
+      window.location.href = "dashboard.html";
+    }
+
+    let selectedOption = null;
+    const submitBtn = document.getElementById("submitVoteBtn");
+
+    function selectCard(card, selection) {
+      document.querySelectorAll(".candidate-card").forEach(function (el) {
+        el.classList.remove("selected");
+      });
+      card.classList.add("selected");
+      selectedOption = selection;
+      submitBtn.disabled = false;
+    }
+
+    // Load election + candidates async
+    (async function () {
+      var election = await VotingData.getElection();
+      document.getElementById("electionTitle").textContent = election ? election.name : "—";
+      document.getElementById("electionDesc").textContent = election ? election.description : "—";
+
+      var candidates = await VotingData.getCandidates();
+      var grid = document.getElementById("candidateGrid");
+
+      candidates.forEach(function (c) {
+        var card = document.createElement("label");
+        card.className = "candidate-card";
+        card.innerHTML =
+          '<div class="photo" style="background:' + c.colour + '">' +
+            c.name.charAt(0).toUpperCase() + '</div>' +
+          '<div class="name">' + c.name + '</div>' +
+          '<div class="department">' + c.department + '</div>' +
+          '<div class="symbol">Symbol: ' + c.symbol + '</div>' +
+          '<input type="radio" name="candidate" value="' + c.id + '">';
+
+        card.addEventListener("click", function () {
+          selectCard(card, c.id);
+        });
+
+        grid.appendChild(card);
+      });
+    })();
+
+    // NOTA card
+    var notaCard = document.getElementById("notaCard");
+    notaCard.addEventListener("click", function () {
+      selectCard(notaCard, "NOTA");
+    });
+
+    // Submit flow
+    var confirmModal = document.getElementById("confirmModal");
+    var successModal = document.getElementById("successModal");
+
+    submitBtn.addEventListener("click", function () {
+      if (!selectedOption) {
+        alert("Please select a candidate or NOTA before submitting your vote.");
+        return;
+      }
+      confirmModal.classList.add("active");
+    });
+
+    document.getElementById("confirmNo").addEventListener("click", function () {
+      confirmModal.classList.remove("active");
+    });
+
+    document.getElementById("confirmYes").addEventListener("click", async function () {
+      confirmModal.classList.remove("active");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting...";
+      var result = await VotingData.castVote(selectedOption);
+      if (result.success) {
+        document.getElementById("voteIdDisplay").textContent = result.voteId;
+        successModal.classList.add("active");
+        submitBtn.textContent = "Vote Submitted";
+      } else {
+        alert(result.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Vote";
+      }
+    });
+
+    injectLogoutModal();
+    setupLogout();
+  </script>
+</body>
+</html>
